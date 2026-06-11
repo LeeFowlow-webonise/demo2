@@ -1,0 +1,18 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "integration: requires local Postgres",
+]
+
+[tool.coverage.run]
+source = [
+    "dividend_analysis",
+    "stock_data",
+    "gx",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 70

@@ -1,0 +1,85 @@
+version: 2
+
+sources:
+  - name: dividend_raw
+    schema: main_raw
+    description: Dividend events loaded from yfinance via Python ETL
+    tables:
+      - name: dividend_events
+        description: Ex-dividend dates with price reaction metrics
+        columns:
+          - name: ticker
+            tests:
+              - not_null
+          - name: ex_dividend_date
+            tests:
+              - not_null
+          - name: dividend_amount
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0
+                    strictly: false
+          - name: drop_less_than_dividend
+            tests:
+              - dbt_expectations.expect_column_values_to_not_be_null:
+                  arguments:
+                    row_condition: "price_drop is not null"
+
+models:
+  - name: stg_dividend_events
+    description: Cleaned dividend events with valid price-drop observations.
+    columns:
+      - name: ticker
+        tests:
+          - not_null
+      - name: ex_dividend_date
+        tests:
+          - not_null
+
+  - name: int_ticker_dividend_stats
+    description: Per-ticker consistency score for minimal ex-date price drops.
+    columns:
+      - name: ticker
+        tests:
+          - not_null
+          - unique
+      - name: consistency_score
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                max_value: 1
+
+  - name: mart_best_dividend_tickers
+    description: Top 2 tickers with the most consistent favorable ex-dividend price behavior.
+    columns:
+      - name: ticker
+        tests:
+          - not_null
+          - unique
+      - name: rank
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2]
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal:
+          arguments:
+            value: 2
+
+  - name: mart_best_ticker_dividend_history
+    description: Dividend history for the selected best tickers over the last 5 years.
+    columns:
+      - name: ticker
+        tests:
+          - not_null
+      - name: ex_dividend_date
+        tests:
+          - not_null
+    tests:
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          arguments:
+            column_list: ["ticker", "ex_dividend_date"]
