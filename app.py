@@ -1,33 +1,15 @@
-from datetime import datetime, timedelta
 import io
 import base64
+import os
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import yfinance as yf
 from flask import Flask, render_template, request
 
+from stock_data import fetch_last_week, get_close_prices
+
 app = Flask(__name__)
-
-
-def fetch_last_week(ticker: str):
-    end = datetime.now().date()
-    start = end - timedelta(days=7)
-    data = yf.download(
-        ticker.upper(),
-        start=start,
-        end=end + timedelta(days=1),
-        progress=False,
-    )
-    return data
-
-
-def get_close_prices(data):
-    close = data["Close"]
-    if hasattr(close, "squeeze"):
-        close = close.squeeze()
-    return close.dropna()
 
 
 def plot_to_base64(close, ticker: str) -> str:
@@ -86,4 +68,5 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug, host="0.0.0.0", port=5000)
