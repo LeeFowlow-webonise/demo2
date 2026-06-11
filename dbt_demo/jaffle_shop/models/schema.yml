@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+  - name: greenwheel
+    schema: "{{ target.schema }}_raw"
+    description: Greenwheel bike rental seed data loaded by dbt seed
+    tables:
+      - name: raw_users
+        description: Registered riders in the Greenwheel system
+        columns:
+          - name: user_id
+            description: Primary key for each user
+            tests:
+              - unique
+              - not_null
+      - name: raw_bikes
+        description: Bikes available in the Greenwheel fleet
+        columns:
+          - name: bike_id
+            description: Primary key for each bike
+            tests:
+              - unique
+              - not_null
+      - name: raw_trips
+        description: Individual bike trips taken by users
+        columns:
+          - name: trip_id
+            description: Primary key for each trip
+            tests:
+              - unique
+              - not_null
+
+models:
+  - name: stg_users
+    description: Cleaned user records with standardized name and email formatting.
+    columns:
+      - name: user_id
+        description: Unique identifier for each user
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_bikes
+    description: Cleaned bike inventory with a clearer bike model column name.
+    columns:
+      - name: bike_id
+        description: Unique identifier for each bike
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_bike_usage
+    description: Bike-level summary of total trip cost and total riding time in minutes.
+    columns:
+      - name: bike_id
+        description: Unique identifier for each bike
