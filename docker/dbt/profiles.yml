@@ -10,3 +10,16 @@ greenwheel:
       database: "{{ env_var('DBT_POSTGRES_DB', 'dbt_demo') }}"
       schema: main
       threads: 4
+
+dividend:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DBT_POSTGRES_HOST', 'postgres') }}"
+      port: "{{ env_var('DBT_POSTGRES_PORT', '5432') | as_number }}"
+      user: "{{ env_var('DBT_POSTGRES_USER', 'dbt') }}"
+      password: "{{ env_var('DBT_POSTGRES_PASSWORD', 'dbt') }}"
+      database: "{{ env_var('DBT_POSTGRES_DB', 'dbt_demo') }}"
+      schema: main
+      threads: 4

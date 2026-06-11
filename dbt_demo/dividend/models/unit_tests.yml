@@ -1,0 +1,14 @@
+unit_tests:
+  - name: test_best_ticker_ranking
+    description: Rank tickers by consistency score and keep top 2.
+    model: mart_best_dividend_tickers
+    given:
+      - input: ref('int_ticker_dividend_stats')
+        rows:
+          - {ticker: AAA, consistency_score: 0.9, favorable_event_count: 9, event_count: 10, last_year_event_count: 4, last_year_favorable_count: 2}
+          - {ticker: BBB, consistency_score: 0.8, favorable_event_count: 8, event_count: 10, last_year_event_count: 4, last_year_favorable_count: 1}
+          - {ticker: CCC, consistency_score: 0.5, favorable_event_count: 5, event_count: 10, last_year_event_count: 4, last_year_favorable_count: 1}
+    expect:
+      rows:
+        - {ticker: AAA, rank: 1}
+        - {ticker: BBB, rank: 2}

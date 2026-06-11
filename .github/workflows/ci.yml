@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main, feature/**]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: dbt
+          POSTGRES_PASSWORD: dbt
+          POSTGRES_DB: dbt_demo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dbt -d dbt_demo"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql+psycopg2://dbt:dbt@localhost:5432/dbt_demo
+      DBT_POSTGRES_HOST: localhost
+      DBT_POSTGRES_PORT: "5432"
+      DBT_POSTGRES_USER: dbt
+      DBT_POSTGRES_PASSWORD: dbt
+      DBT_POSTGRES_DB: dbt_demo
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov sqlalchemy psycopg2-binary great-expectations
+
+      - name: Run Python unit tests with coverage
+        run: |
+          pytest tests/ -m "not integration" \
+            --cov=dividend_analysis \
+            --cov=stock_data \
+            --cov=gx \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-fail-under=70
+
+      - name: Run Great Expectations validation
+        run: python gx/validate_dividend_events.py
+
+      - name: Load dividend fixture data
+        run: python scripts/load_dividend_fixture.py
+
+      - name: Run dbt dividend project
+        working-directory: dbt_demo/dividend
+        run: |
+          dbt deps --profiles-dir ../../docker/dbt
+          dbt build --profiles-dir ../../docker/dbt
+
+      - name: Upload coverage summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
