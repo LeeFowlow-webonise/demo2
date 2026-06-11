@@ -1,0 +1,20 @@
+name: greenwheel
+
+profile: greenwheel
+
+seed-paths: ["seeds"]
+model-paths: ["models"]
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+seeds:
+  greenwheel:
+    +schema: raw
+
+models:
+  greenwheel:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
