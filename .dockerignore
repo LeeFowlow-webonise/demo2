@@ -1,0 +1,16 @@
+.venv
+__pycache__
+*.pyc
+.git
+.gitignore
+.DS_Store
+dbt_demo/**/target
+dbt_demo/**/logs
+dbt_demo/**/dbt_packages
+dbt_demo/jaffle_shop
+dbt_demo/jaffle_shop_1
+dbt_demo/jaffle_shop_2
+*.ipynb
+exercise_day2
+exercise_pandas
+tutorial

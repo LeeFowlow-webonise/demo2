@@ -1,7 +1,7 @@
 dbt-core>=1.11.11
 dbt-postgres>=1.10.0
-mashumaro>=3.22
 flask
 matplotlib
 pandas
+prefect>=3.7
 yfinance

@@ -1,0 +1,4 @@
+# Python 3.14 only: dbt-core 1.11.x pins mashumaro<3.15, but 3.14 needs mashumaro>=3.22.
+# Install after requirements.txt on local Python 3.14:
+#   pip install -r requirements-py314.txt
+mashumaro>=3.22

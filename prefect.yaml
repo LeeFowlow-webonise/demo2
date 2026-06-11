@@ -1,0 +1,27 @@
+name: demo2
+prefect-version: 3.7.4
+
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: .
+
+deployments:
+  - name: stock-price-check-daily
+    description: Fetch the latest weekly stock prices for a ticker.
+    entrypoint: workflows/stock_flow.py:stock_price_check
+    parameters:
+      ticker: AAPL
+    work_pool:
+      name: default-process-pool
+    schedule:
+      cron: "0 8 * * 1-5"
+      timezone: America/New_York
+
+  - name: greenwheel-dbt-daily
+    description: Seed and build the Greenwheel dbt project.
+    entrypoint: workflows/dbt_flow.py:greenwheel_pipeline
+    work_pool:
+      name: default-process-pool
+    schedule:
+      cron: "0 6 * * *"
+      timezone: America/New_York
