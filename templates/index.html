@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Chart</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    h1 { margin-top: 0; }
+    form {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.75rem 1.25rem;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #1d4ed8; }
+    .error {
+      background: #fef2f2;
+      color: #b91c1c;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .chart {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      margin-bottom: 1.5rem;
+    }
+    .chart img { width: 100%; height: auto; display: block; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th { background: #f1f5f9; }
+  </style>
+</head>
+<body>
+  <h1>Stock Price Chart</h1>
+  <p>Enter a ticker symbol to view closing prices for the last 7 days.</p>
+
+  <form method="post">
+    <input
+      type="text"
+      name="ticker"
+      placeholder="e.g. AAPL"
+      value="{{ ticker }}"
+      autofocus
+    >
+    <button type="submit">Get Chart</button>
+  </form>
+
+  {% if error %}
+    <div class="error">{{ error }}</div>
+  {% endif %}
+
+  {% if chart %}
+    <div class="chart">
+      <img src="data:image/png;base64,{{ chart }}" alt="Stock chart">
+    </div>
+
+    {% if rows %}
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Close</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td>{{ row.date }}</td>
+              <td>{{ row.close }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% endif %}
+</body>
+</html>
